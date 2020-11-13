@@ -3,7 +3,7 @@ import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa'
 
 import api from '../../services/api'
 
-import { Container, Form, SubmitButton } from './styles'
+import { Container, Form, SubmitButton, List } from './styles'
 
 class Main extends Component {
 	state = {
@@ -15,23 +15,28 @@ class Main extends Component {
 	handleSubmit = async event => {
 		event.preventDefault()
 
-		this.setState({ loading: true })
+		try {
+			this.setState({ loading: true })
 
-		const { newRepo, repositories } = this.state
+			const { newRepo, repositories } = this.state
 
-		const response = await api.get(`/repos/${newRepo}`)
+			const response = await api.get(`/repos/${newRepo}`)
 
-		const data = { name: response.data.full_name }
+			const data = { name: response.data.full_name }
 
-		this.setState({
-			repositories: [...repositories, data],
-			newRepo: '',
-			loading: false
-		})
+			this.setState({
+				repositories: [...repositories, data],
+				newRepo: '',
+				loading: false
+			})
+		} catch (error) {
+			this.setState({ loading: false })
+			alert('Falha ao buscar e salvar repositório!')
+		}
 	}
 
 	render() {
-		const { loading, newRepo } = this.state
+		const { loading, newRepo, repositories } = this.state
 
 		return (
 			<Container>
@@ -41,10 +46,19 @@ class Main extends Component {
 					<input type="text" placeholder="Adicionar repositório" value={newRepo}
 						onChange={event => this.setState({ newRepo: event.target.value })} />
 
-					<SubmitButton loading={loading}>
+					<SubmitButton loading={loading ? true : undefined}>
 						{loading ? <FaSpinner size={14} color="#fff" /> : <FaPlus size={14} color="#fff" />}
 					</SubmitButton>
 				</Form>
+
+				<List>
+					{repositories.map(({ name }) => (
+						<li>
+							<span>{name}</span>
+							<a href="*">Detalhes</a>
+						</li>
+					))}
+				</List>
 			</Container>
 		)
 	}
