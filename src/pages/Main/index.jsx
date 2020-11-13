@@ -5,12 +5,13 @@ import { Link } from 'react-router-dom'
 import api from '../../services/api'
 
 import Container from '../../components/Container'
-import { Form, SubmitButton, List } from './styles'
+import { Form, SubmitButton, List, InputRepository } from './styles'
 
 class Main extends Component {
 	state = {
 		newRepo: '',
 		loading: false,
+		error: false,
 		repositories: []
 	}
 
@@ -46,20 +47,19 @@ class Main extends Component {
 				loading: false
 			})
 		} catch (error) {
-			this.setState({ loading: false })
-			alert('Falha ao buscar e salvar repositório!')
+			this.setState({ loading: false, newRepo: '', error: true })
 		}
 	}
 
 	render() {
-		const { loading, newRepo, repositories } = this.state
+		const { loading, newRepo, repositories, error } = this.state
 
 		return (
 			<Container>
 				<h1><FaGithubAlt /> Repositórios</h1>
 
 				<Form onSubmit={this.handleSubmit}>
-					<input type="text" placeholder="Adicionar repositório" value={newRepo}
+					<InputRepository type="text" placeholder="Adicionar repositório" value={newRepo} error={error} onFocus={() => this.setState({ error: false })}
 						onChange={event => this.setState({ newRepo: event.target.value })} />
 
 					<SubmitButton loading={loading ? true : undefined}>
