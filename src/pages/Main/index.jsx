@@ -1,15 +1,31 @@
 import React, { Component } from 'react'
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa'
+import { Link } from 'react-router-dom'
 
 import api from '../../services/api'
 
-import { Container, Form, SubmitButton, List } from './styles'
+import Container from '../../components/Container'
+import { Form, SubmitButton, List } from './styles'
 
 class Main extends Component {
 	state = {
 		newRepo: '',
 		loading: false,
 		repositories: []
+	}
+
+	// Carregar dados do localStorage
+	componentDidMount() {
+		const repositories = localStorage.getItem('repositories')
+
+		if (repositories) { this.setState({ repositories: JSON.parse(repositories) }) }
+	}
+
+	// Salvar dados do localStorage
+	componentDidUpdate(_, prevState) {
+		const { repositories } = this.state
+
+		if (prevState.repositories !== repositories) { localStorage.setItem('repositories', JSON.stringify(repositories)) }
 	}
 
 	handleSubmit = async event => {
@@ -20,7 +36,7 @@ class Main extends Component {
 
 			const { newRepo, repositories } = this.state
 
-			const response = await api.get(`/repos/${newRepo}`)
+			const response = await api.get(newRepo)
 
 			const data = { name: response.data.full_name }
 
@@ -53,9 +69,9 @@ class Main extends Component {
 
 				<List>
 					{repositories.map(({ name }) => (
-						<li>
+						<li key={name}>
 							<span>{name}</span>
-							<a href="*">Detalhes</a>
+							<Link to={`/repository/${encodeURIComponent(name)}`}>Detalhes</Link>
 						</li>
 					))}
 				</List>
