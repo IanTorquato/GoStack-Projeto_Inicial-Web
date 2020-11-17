@@ -4,7 +4,7 @@ const Loading = styled.div`
 	align-items: center;
 	color: #fff;
 	display: flex;
-	font-size:32px;
+	font-size: 32px;
 	font-weight: bold;
 	height: 100vh;
 	justify-content: center;
@@ -23,8 +23,8 @@ const Owner = styled.header`
 
 	img {
 		border-radius: 50%;
-		margin-top:20px;
-		width: 120px;
+		margin-top: 16px;
+		width: 112px;
 	}
 
 	h1 {
@@ -44,24 +44,24 @@ const Owner = styled.header`
 const IssueList = styled.ul`
 	border-top: 1px solid #eee;
 	list-style: none;
-	margin-top: 30px;
-	padding-top: 30px;
+	margin-top: 24px;
+	padding-top: 24px;
 
 	li {
 		border: 1px solid #eee;
 		border-radius: 4px;
 		display: flex;
-		padding: 15px 10px;
+		padding: 12px 10px;
 
 		& + li {
-			margin-top: 10px;
+			margin-top: 8px;
 		}
 
 		img {
 			border: 1px solid #eee;
 			border-radius: 50%;
-			height: 36px;
-			width: 36px;
+			height: 40px;
+			width: 40px;
 		}
 
 		div {
@@ -100,4 +100,44 @@ const IssueList = styled.ul`
 	}
 `
 
-export { Loading, Owner, IssueList }
+const IssueFilter = styled.div`
+  display: flex;
+  justify-content: center;
+  padding-bottom: 15px;
+
+  button {
+    border: 0;
+    border-radius: 4px;
+    margin: 0 0.25rem;
+    outline: 0;
+    padding: 8px;
+
+    &:nth-child(${props => props.active + 1}) {
+      background: #576574;
+      color: white;
+    }
+  }
+`;
+
+const PageActions = styled.div`
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  justify-content: space-between;
+  padding-top: 15px;
+
+  button {
+    border: 0;
+    border-radius: 4px;
+    outline: 0;
+    padding: 8px;
+    transition: opacity 0.25s ease-out;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.35;
+    }
+  }
+`;
+
+export { Loading, Owner, IssueList, IssueFilter, PageActions }
