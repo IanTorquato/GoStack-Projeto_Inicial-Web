@@ -5,13 +5,13 @@ import { Link } from 'react-router-dom'
 import api from '../../services/api'
 
 import Container from '../../components/Container'
-import { Form, SubmitButton, List, InputRepository } from './styles'
+import { Form, SubmitButton, List } from './styles'
 
 class Main extends Component {
 	state = {
 		newRepo: '',
 		loading: false,
-		error: false,
+		error: null,
 		repositories: []
 	}
 
@@ -33,9 +33,14 @@ class Main extends Component {
 		event.preventDefault()
 
 		try {
-			this.setState({ loading: true })
+			this.setState({ loading: true, error: false })
 
 			const { newRepo, repositories } = this.state
+
+			if (newRepo === '') throw new Error('Você precisa indicar um repositório')
+
+			if (repositories.find(repository => repository.name === newRepo)) throw new Error('Repositório duplicado!')
+
 
 			const response = await api.get(newRepo)
 
@@ -43,12 +48,11 @@ class Main extends Component {
 
 			this.setState({
 				repositories: [...repositories, data],
-				newRepo: '',
-				loading: false
+				newRepo: ''
 			})
-		} catch (error) {
-			this.setState({ loading: false, newRepo: '', error: true })
 		}
+		catch (error) { this.setState({ error: "true" }) }
+		finally { this.setState({ loading: false }) }
 	}
 
 	render() {
@@ -58,9 +62,8 @@ class Main extends Component {
 			<Container>
 				<h1><FaGithubAlt /> Repositórios</h1>
 
-				<Form onSubmit={this.handleSubmit}>
-					<InputRepository type="text" placeholder="Adicionar repositório" value={newRepo} error={error} onFocus={() => this.setState({ error: false })}
-						onChange={event => this.setState({ newRepo: event.target.value })} />
+				<Form onSubmit={this.handleSubmit} error={error}>
+					<input type="text" placeholder="Adicionar repositório" value={newRepo} onChange={event => this.setState({ newRepo: event.target.value, error: null })} />
 
 					<SubmitButton loading={loading ? true : undefined}>
 						{loading ? <FaSpinner size={14} color="#fff" /> : <FaPlus size={14} color="#fff" />}

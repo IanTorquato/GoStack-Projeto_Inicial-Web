@@ -3,16 +3,14 @@ import styled, { css, keyframes } from 'styled-components'
 const Form = styled.form`
 	display: flex;
 	margin-top: 30px;
-`
-
-const InputRepository = styled.input`
-		border: 1px solid #eee;
+	
+	input {
+		border: 1px solid ${(props) => props.error === "true" ? '#f00' : '#eee'};
 		border-radius: 4px;
 		flex: 1;
 		font-size: 16px;
 		padding: 10px 15px;
-
-		${({ error }) => error && css` border: 1px solid #f00 `}
+	}
 `
 
 const rotate = keyframes`
@@ -72,4 +70,4 @@ const List = styled.ul`
 	}
 `
 
-export { Form, SubmitButton, List, InputRepository }
+export { Form, SubmitButton, List }
