@@ -8,118 +8,118 @@ import Container from '../../components/Container'
 import { Loading, Owner, IssueList, IssueFilter, PageActions } from './styles'
 
 class Repository extends Component {
-	static propTypes = {
-		match: PropTypes.shape({ params: PropTypes.shape({ repository: PropTypes.string }) }).isRequired
-	}
+  static propTypes = {
+    match: PropTypes.shape({ params: PropTypes.shape({ repository: PropTypes.string }) }).isRequired
+  }
 
-	state = {
-		repository: {},
-		issues: [],
-		loading: true,
-		filters: [
-			{ state: 'all', label: 'Todas', active: true },
-			{ state: 'open', label: 'Abertas', active: false },
-			{ state: 'closed', label: 'Fechadas', active: false },
-		],
-		filterIndex: 0,
-		page: 1
-	}
+  state = {
+    repository: {},
+    issues: [],
+    loading: true,
+    filters: [
+      { state: 'all', label: 'Todas', active: true },
+      { state: 'open', label: 'Abertas', active: false },
+      { state: 'closed', label: 'Fechadas', active: false },
+    ],
+    filterIndex: 0,
+    page: 1
+  }
 
-	async componentDidMount() {
-		const { match } = this.props
-		const { filters } = this.state
+  async componentDidMount() {
+    const { match } = this.props
+    const { filters } = this.state
 
-		const repoName = decodeURIComponent(match.params.repository)
+    const repoName = decodeURIComponent(match.params.repository)
 
-		const [repository, issues] = await Promise.all([
-			api.get(repoName),
-			api.get(`${repoName}/issues`, { params: { state: filters.find(filter => filter.active).state, per_page: 5 } })
-		])
+    const [repository, issues] = await Promise.all([
+      api.get(repoName),
+      api.get(`${repoName}/issues`, { params: { state: filters.find(filter => filter.active).state, per_page: 5 } })
+    ])
 
-		this.setState({ repository: repository.data, issues: issues.data, loading: false })
-	}
+    this.setState({ repository: repository.data, issues: issues.data, loading: false })
+  }
 
-	loadIssues = async () => {
-		const { match } = this.props
-		const { filters, filterIndex, page } = this.state
+  loadIssues = async () => {
+    const { match } = this.props
+    const { filters, filterIndex, page } = this.state
 
-		const repoName = decodeURIComponent(match.params.repository)
+    const repoName = decodeURIComponent(match.params.repository)
 
-		const response = await api.get(`${repoName}/issues`, {
-			params: {
-				state: filters[filterIndex].state,
-				per_page: 5,
-				page
-			}
-		})
+    const response = await api.get(`${repoName}/issues`, {
+      params: {
+        state: filters[filterIndex].state, per_page: 5, page
+      }
+    })
 
-		this.setState({ issues: response.data })
-	}
+    this.setState({ issues: response.data })
+  }
 
-	handleFilterClick = async filterIndex => {
-		await this.setState({ filterIndex })
-		this.loadIssues()
-	}
+  handleFilterClick = async filterIndex => {
+    this.setState({ filterIndex })
 
-	handlePage = async action => {
-		const { page } = this.state
+    this.loadIssues()
+  }
 
-		await this.setState({ page: action === 'back' ? page - 1 : page + 1 })
-		this.loadIssues()
-	}
+  handlePage = async action => {
+    const { page } = this.state
 
-	render() {
-		const { repository, issues, loading, filters, filterIndex, page } = this.state
+    this.setState({ page: action === 'back' ? page - 1 : page + 1 })
 
-		if (loading) { return <Loading>Carregando...</Loading> }
+    this.loadIssues()
+  }
 
-		return (
-			<Container>
-				<Owner>
-					<Link to="/">Voltar aos repositórios</Link>
+  render() {
+    const { repository, issues, loading, filters, filterIndex, page } = this.state
 
-					<img src={repository.owner.avatar_url} alt={repository.owner.login} />
+    if (loading) return <Loading>Carregando...</Loading>
 
-					<h1>{repository.name}</h1>
-					<p>{repository.description}</p>
-				</Owner>
+    return (
+      <Container>
+        <Owner>
+          <Link to="/">Voltar aos repositórios</Link>
 
-				<IssueList>
-					<IssueFilter active={filterIndex}>
-						{filters.map((filter, index) => (
-							<button type="button" key={filter.label} onClick={() => this.handleFilterClick(index)}>
-								{filter.label}
-							</button>
-						))}
-					</IssueFilter>
+          <img src={repository.owner.avatar_url} alt={repository.owner.login} />
 
-					{issues.map(issue => (
-						<li key={issue.id}>
-							<img src={issue.user.avatar_url} alt={issue.user.login} />
+          <h1>{repository.name}</h1>
+          <p>{repository.description}</p>
+        </Owner>
 
-							<div>
-								<strong>
-									<a href={issue.html_url} target="_blank" rel="noopener noreferrer">{issue.title}</a>
+        <IssueList>
+          <IssueFilter active={filterIndex}>
+            {filters.map((filter, index) => (
+              <button type="button" key={filter.label} onClick={() => this.handleFilterClick(index)}>
+                {filter.label}
+              </button>
+            ))}
+          </IssueFilter>
 
-									{issue.labels.map(label => <span key={label.id}>{label.name}</span>)}
-								</strong>
+          {issues.map(issue => (
+            <li key={issue.id}>
+              <img src={issue.user.avatar_url} alt={issue.user.login} />
 
-								<p>{issue.user.login}</p>
-							</div>
-						</li>
-					))}
-				</IssueList>
+              <div>
+                <strong>
+                  <a href={issue.html_url} target="_blank" rel="noopener noreferrer">{issue.title}</a>
 
-				<PageActions>
-					<button type="button" disabled={page < 2} onClick={() => this.handlePage('back')}> Anterior </button>
+                  {issue.labels.map(label => <span key={label.id}>{label.name}</span>)}
+                </strong>
 
-					<span>Página {page}</span>
+                <p>{issue.user.login}</p>
+              </div>
+            </li>
+          ))}
+        </IssueList>
 
-					<button type="button" onClick={() => this.handlePage('next')}> Próximo </button>
-				</PageActions>
-			</Container>
-		)
-	}
+        <PageActions>
+          <button type="button" disabled={page < 2} onClick={() => this.handlePage('back')}> Anterior </button>
+
+          <span>Página {page}</span>
+
+          <button type="button" onClick={() => this.handlePage('next')}> Próximo </button>
+        </PageActions>
+      </Container>
+    )
+  }
 }
 
 export default Repository

@@ -8,79 +8,81 @@ import Container from '../../components/Container'
 import { Form, SubmitButton, List } from './styles'
 
 class Main extends Component {
-	state = {
-		newRepo: '',
-		loading: false,
-		error: null,
-		repositories: []
-	}
+  state = {
+    newRepo: '',
+    loading: false,
+    error: null,
+    repositories: []
+  }
 
-	// Carregar dados do localStorage
-	componentDidMount() {
-		const repositories = localStorage.getItem('repositories')
+  // Carregar dados do localStorage
+  componentDidMount() {
+    const repositories = localStorage.getItem('repositories')
 
-		if (repositories) { this.setState({ repositories: JSON.parse(repositories) }) }
-	}
+    if (repositories) { this.setState({ repositories: JSON.parse(repositories) }) }
+  }
 
-	// Salvar dados do localStorage
-	componentDidUpdate(_, prevState) {
-		const { repositories } = this.state
+  // Salvar dados do localStorage
+  componentDidUpdate(_, prevState) {
+    const { repositories } = this.state
 
-		if (prevState.repositories !== repositories) { localStorage.setItem('repositories', JSON.stringify(repositories)) }
-	}
+    if (prevState.repositories !== repositories) { localStorage.setItem('repositories', JSON.stringify(repositories)) }
+  }
 
-	handleSubmit = async event => {
-		event.preventDefault()
+  handleSubmit = async event => {
+    event.preventDefault()
 
-		try {
-			this.setState({ loading: true, error: false })
+    try {
+      this.setState({ loading: true, error: false })
 
-			const { newRepo, repositories } = this.state
+      const { newRepo, repositories } = this.state
 
-			if (newRepo === '') throw new Error('Você precisa indicar um repositório')
+      if (newRepo === '') throw new Error('Você precisa indicar um repositório')
 
-			if (repositories.find(repository => repository.name === newRepo)) throw new Error('Repositório duplicado!')
+      if (repositories.find(repository => repository.name === newRepo))
+        throw new Error('Repositório duplicado!')
 
 
-			const response = await api.get(newRepo)
+      const response = await api.get(newRepo)
 
-			const data = { name: response.data.full_name }
+      const data = { name: response.data.full_name }
 
-			this.setState({
-				repositories: [...repositories, data],
-				newRepo: ''
-			})
-		}
-		catch (error) { this.setState({ error: "true" }) }
-		finally { this.setState({ loading: false }) }
-	}
+      this.setState({
+        repositories: [...repositories, data],
+        newRepo: ''
+      })
+    }
+    catch (error) { this.setState({ error: "true" }) }
+    finally { this.setState({ loading: false }) }
+  }
 
-	render() {
-		const { loading, newRepo, repositories, error } = this.state
+  render() {
+    const { loading, newRepo, repositories, error } = this.state
 
-		return (
-			<Container>
-				<h1><FaGithubAlt /> Repositórios</h1>
+    return (
+      <Container>
+        <h1><FaGithubAlt /> Repositórios</h1>
 
-				<Form onSubmit={this.handleSubmit} error={error}>
-					<input type="text" placeholder="Adicionar repositório" value={newRepo} onChange={event => this.setState({ newRepo: event.target.value, error: null })} />
+        <Form onSubmit={this.handleSubmit} error={error}>
+          <input type="text" placeholder="Adicionar repositório" value={newRepo}
+            onChange={event => this.setState({ newRepo: event.target.value, error: null })} />
 
-					<SubmitButton loading={loading ? true : undefined}>
-						{loading ? <FaSpinner size={14} color="#fff" /> : <FaPlus size={14} color="#fff" />}
-					</SubmitButton>
-				</Form>
+          <SubmitButton loading={loading ? true : undefined}>
+            {loading ? <FaSpinner size={14} color="#fff" /> : <FaPlus size={14} color="#fff" />}
+          </SubmitButton>
+        </Form>
 
-				<List>
-					{repositories.map(({ name }) => (
-						<li key={name}>
-							<span>{name}</span>
-							<Link to={`/repository/${encodeURIComponent(name)}`}>Detalhes</Link>
-						</li>
-					))}
-				</List>
-			</Container>
-		)
-	}
+        <List>
+          {repositories.map(({ name }) => (
+            <li key={name}>
+              <span>{name}</span>
+              <Link to={`/repository/${encodeURIComponent(name)}`}>Detalhes</Link>
+            </li>
+          ))}
+        </List>
+      </Container>
+    )
+  }
 }
 
 export default Main
